@@ -1,0 +1,43 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch: # 支持手动一键触发
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Pixeval 包含 submodule，必须递归拉取
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x' # 如主分支已升级至 .NET 10/11，按仓库 Global.json 调整
+
+      - name: Install iOS Workload
+        run: dotnet workload install ios
+
+      - name: Build & Publish iOS (.app)
+        run: |
+          dotnet publish src/Pixeval.iOS/Pixeval.iOS.csproj \
+            -c Release \
+            -f net9.0-ios \
+            -p:CodesignKey="" \
+            -p:CodesignProvision="" \
+            -o build-output
+
+      - name: Package to IPA (Unsigned)
+        run: |
+          mkdir -p Payload
+          cp -r build-output/Pixeval.iOS.app Payload/
+          zip -r Pixeval.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pixeval-iOS-IPA
+          path: Pixeval.ipa
