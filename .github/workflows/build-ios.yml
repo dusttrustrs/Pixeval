@@ -5,9 +5,17 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: xcode-27
 
     steps:
+      - name: Select Xcode 27.2
+        run: |
+          ls -d /Applications/Xcode*.app
+          if [ -d "/Applications/Xcode_27.2.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_27.2.app/Contents/Developer
+          fi
+          xcodebuild -version
+
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
