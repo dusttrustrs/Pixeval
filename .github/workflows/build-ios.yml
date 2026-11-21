@@ -9,14 +9,15 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive # Pixeval 包含 submodule，必须递归拉取
+          filter: tree:0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '9.0.x' # 如主分支已升级至 .NET 10/11，按仓库 Global.json 调整
+          global-json-file: global.json
 
       - name: Install iOS Workload
         run: dotnet workload install ios
@@ -25,19 +26,32 @@ jobs:
         run: |
           dotnet publish src/Pixeval.iOS/Pixeval.iOS.csproj \
             -c Release \
-            -f net9.0-ios \
+            -f net11.0-ios \
+            -r ios-arm64 \
+            -p:EnableCodeSigning=false \
+            -p:_RequireCodeSigning=false \
             -p:CodesignKey="" \
             -p:CodesignProvision="" \
             -o build-output
 
       - name: Package to IPA (Unsigned)
         run: |
+          APP_PATH=$(find build-output -maxdepth 3 -name "*.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: .app bundle not found in build-output"
+            ls -la build-output
+            exit 1
+          fi
+          echo "Found app bundle: $APP_PATH"
+          rm -rf Payload Pixeval.ipa
           mkdir -p Payload
-          cp -r build-output/Pixeval.iOS.app Payload/
+          cp -r "$APP_PATH" Payload/
           zip -r Pixeval.ipa Payload
+          ls -lh Pixeval.ipa
 
       - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Pixeval-iOS-IPA
           path: Pixeval.ipa
+          if-no-files-found: error
