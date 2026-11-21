@@ -44,17 +44,23 @@ jobs:
 
       - name: Package to IPA (Unsigned)
         run: |
-          APP_PATH=$(find build-output -maxdepth 3 -name "*.app" -type d | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            echo "Error: .app bundle not found in build-output"
-            ls -la build-output
-            exit 1
-          fi
-          echo "Found app bundle: $APP_PATH"
           rm -rf Payload Pixeval.ipa
-          mkdir -p Payload
-          cp -r "$APP_PATH" Payload/
-          zip -r Pixeval.ipa Payload
+          IPA_PATH=$(find build-output -maxdepth 3 -name "*.ipa" -type f | head -n 1)
+          if [ -n "$IPA_PATH" ]; then
+            echo "Found published IPA: $IPA_PATH"
+            cp "$IPA_PATH" Pixeval.ipa
+          else
+            APP_PATH=$(find build-output -maxdepth 3 -name "*.app" -type d | head -n 1)
+            if [ -z "$APP_PATH" ]; then
+              echo "Error: neither .ipa nor .app bundle found in build-output"
+              ls -la build-output
+              exit 1
+            fi
+            echo "Found app bundle: $APP_PATH"
+            mkdir -p Payload
+            cp -r "$APP_PATH" Payload/
+            zip -r Pixeval.ipa Payload
+          fi
           ls -lh Pixeval.ipa
 
       - name: Upload IPA Artifact
