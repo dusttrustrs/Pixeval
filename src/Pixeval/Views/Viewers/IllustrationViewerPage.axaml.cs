@@ -8,6 +8,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Pixeval.Controls;
 using Pixeval.Models.Options;
 using Pixeval.Utilities;
@@ -27,6 +28,7 @@ public partial class IllustrationViewerPage : ContentPage
     private const double SwipeFlickVelocity = 320;
 
     private readonly HashSet<int> _activeTouchPointers = [];
+    private readonly TranslateTransform _viewerSwipeTransform = new();
     private int? _trackedTouchId;
     private Point _touchStartPoint;
     private long _touchStartTimestamp;
@@ -44,6 +46,7 @@ public partial class IllustrationViewerPage : ContentPage
     {
         DataContext = viewModel;
         InitializeComponent();
+        I.RenderTransform = _viewerSwipeTransform;
 
         EntryViewerFloatingPaneView.AddHandler(PointerPressedEvent, OnViewerPointerPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
         EntryViewerFloatingPaneView.AddHandler(PointerMovedEvent, OnViewerPointerMoved, RoutingStrategies.Tunnel, handledEventsToo: true);
@@ -112,7 +115,7 @@ public partial class IllustrationViewerPage : ContentPage
         var canNavigate = dx < 0
             ? ViewModel.NextCommand.CanExecute(null)
             : ViewModel.PrevCommand.CanExecute(null);
-        ViewerSwipeTransform.X = canNavigate ? dx : dx * 0.25;
+        _viewerSwipeTransform.X = canNavigate ? dx : dx * 0.25;
     }
 
     private void OnViewerPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -156,7 +159,7 @@ public partial class IllustrationViewerPage : ContentPage
             return;
         }
 
-        if (Math.Hypot(dx, dy) <= TapMaxDistance && elapsedMs <= TapMaxDurationMs)
+        if (double.Hypot(dx, dy) <= TapMaxDistance && elapsedMs <= TapMaxDurationMs)
             HandleViewerEdgeTap(endPoint);
     }
 
@@ -246,7 +249,7 @@ public partial class IllustrationViewerPage : ContentPage
 
     private void ResetSwipeVisual()
     {
-        ViewerSwipeTransform.X = 0;
+        _viewerSwipeTransform.X = 0;
     }
 
     private void PrevButton_OnRightClick(object? sender, ContextRequestedEventArgs e) => ViewModel.PrevWorkCommand.Execute(null);

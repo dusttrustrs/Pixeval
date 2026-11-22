@@ -177,11 +177,7 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         CurrentWorkIndex="{Binding #Root.((viewers:IllustrationViewerPageViewModel)DataContext)?.CurrentWorkIndex}"
-                        DataContext="{Binding CurrentImage}">
-                        <local:ImageViewerWrapper.RenderTransform>
-                            <TranslateTransform x:Name="ViewerSwipeTransform" />
-                        </local:ImageViewerWrapper.RenderTransform>
-                    </local:ImageViewerWrapper>
+                        DataContext="{Binding CurrentImage}" />
 
                     <controls:ViewerStateOverlay ErrorMessage="{Binding LoadErrorMessage}" IsLoading="{Binding IsLoading}" />
 
