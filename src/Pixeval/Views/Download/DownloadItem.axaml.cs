@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using FluentIcons.Common;
@@ -18,9 +19,20 @@ public partial class DownloadItem : UserControl
 {
     public event Action<DownloadItem, DownloadItemViewModel>? OpenIllustrationRequested;
 
-    public DownloadItem() => InitializeComponent();
+    public DownloadItem()
+    {
+        InitializeComponent();
+        SizeChanged += OnSizeChanged;
+    }
 
     private DownloadItemViewModel? ViewModel => DataContext as DownloadItemViewModel;
+
+    private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        ItemCommandBar.DefaultLabelPosition = e.NewSize.Width < 520
+            ? CommandBarDefaultLabelPosition.Collapsed
+            : CommandBarDefaultLabelPosition.Right;
+    }
 
     private async void ActionButton_OnClicked(object? sender, RoutedEventArgs e)
     {
@@ -48,9 +60,34 @@ public partial class DownloadItem : UserControl
         if (ViewModel is not { } vm)
             return;
 
+        if (PlatformShareHelper.SharePathAsync is not null)
+        {
+            var destination = vm.DownloadTask.OpenLocalDestination;
+            var targetPath = File.Exists(destination) || Directory.Exists(destination)
+                ? destination
+                : Path.GetDirectoryName(destination);
+            if (!string.IsNullOrWhiteSpace(targetPath))
+                await OpenPathAsync(targetPath);
+            return;
+        }
+
         var path = Path.GetDirectoryName(vm.DownloadTask.OpenLocalDestination);
         if (!string.IsNullOrWhiteSpace(path))
             await OpenPathAsync(path);
+    }
+
+    private async void CopyImagePathItem_OnClicked(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel is not { } vm
+            || TopLevel.GetTopLevel(this) is not { Clipboard: { } clipboard } topLevel)
+            return;
+
+        var path = vm.DownloadTask.OpenLocalDestination;
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        await clipboard.SetTextAsync(path);
+        topLevel.ViewContainer?.ShowSuccess(I18NManager.GetResource(MiscResources.Copied));
     }
 
     private void GoToPageItem_OnClicked(object? sender, RoutedEventArgs e)
@@ -74,6 +111,17 @@ public partial class DownloadItem : UserControl
 
     private async Task OpenPathAsync(string path)
     {
+        if (PlatformShareHelper.SharePathAsync is { } shareAsync)
+        {
+            if (await shareAsync(path))
+                return;
+
+            TopLevel.GetTopLevel(this)?.ViewContainer?.ShowError(
+                I18NManager.GetResource(DownloadItemResources.ActionButtonContentOpen),
+                path);
+            return;
+        }
+
         if (TopLevel.GetTopLevel(this) is not { Launcher: { } launcher })
             return;
 

@@ -18,7 +18,7 @@
         SelectedIndex="{Binding SelectedPageIndex}"
         SelectionChanged="SelectingMultiPage_OnSelectionChanged">
         <controls:SwipeControl.PageTransition>
-            <PageSlide Orientation="Horizontal" Duration="0:0:0.3" />
+            <PageSlide Orientation="Horizontal" Duration="0:0:0.2" />
         </controls:SwipeControl.PageTransition>
         <controls:SwipeControl.ItemTemplate>
             <DataTemplate DataType="{x:Type viewers:SingleViewerViewModel}">

@@ -17,6 +17,7 @@ public static class FloatingPane
     private const string CloseProximityClass = "close-proximity";
     private const string NotProximityClass = "not-proximity";
     private const string TemporaryVisibleClass = "temporary-visible";
+    private const string TouchVisibleClass = "touch-visible";
 
     public static readonly AttachedProperty<bool> IsEnabledProperty =
         AvaloniaProperty.RegisterAttached<Control, bool>(
@@ -33,19 +34,19 @@ public static class FloatingPane
         AvaloniaProperty.RegisterAttached<Control, Thickness>(
             "ProximityRange",
             typeof(FloatingPane),
-            defaultValue: new Thickness(250));
+            defaultValue: new Thickness(120));
 
     public static readonly AttachedProperty<Thickness> CloseProximityRangeProperty =
         AvaloniaProperty.RegisterAttached<Control, Thickness>(
             "CloseProximityRange",
             typeof(FloatingPane),
-            defaultValue: new Thickness(60));
+            defaultValue: new Thickness(40));
 
     public static readonly AttachedProperty<TimeSpan> CloseProximityExitDelayProperty =
         AvaloniaProperty.RegisterAttached<Control, TimeSpan>(
             "CloseProximityExitDelay",
             typeof(FloatingPane),
-            defaultValue: TimeSpan.FromSeconds(0.3));
+            defaultValue: TimeSpan.FromSeconds(0.15));
 
     public static readonly AttachedProperty<TimeSpan> TemporaryVisibleDurationProperty =
         AvaloniaProperty.RegisterAttached<Control, TimeSpan>(
@@ -114,6 +115,15 @@ public static class FloatingPane
                 state.TemporaryVisibleDelayTask = null;
             },
             duration ?? GetTemporaryVisibleDuration(element));
+    }
+
+    public static bool IsTouchVisible(Control element) => element.Classes.Contains(TouchVisibleClass);
+
+    public static void SetTouchVisible(Control element, bool visible)
+    {
+        element.Classes.Set(TouchVisibleClass, visible);
+        if (!visible)
+            SetPointerAway(element);
     }
 
     internal static void RefreshHostRegistration(Control element)

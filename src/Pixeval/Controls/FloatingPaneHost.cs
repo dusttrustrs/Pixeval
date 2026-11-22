@@ -81,6 +81,9 @@ public static class FloatingPaneHost
 
     private static void OnPointerMoved(object? sender, PointerEventArgs e)
     {
+        if (e.Pointer.Type is PointerType.Touch)
+            return;
+
         if (sender is Panel host && host.GetValue(RegisteredPanesProperty) is { Count: > 0 } panes)
         {
             var pointerPosition = e.GetPosition(host);

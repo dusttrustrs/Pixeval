@@ -167,17 +167,49 @@ public class FloatingPaneView : ContentControl
         PseudoClasses.Set(PcLocked, IsLocked && !IsDocked);
     }
 
+    public bool IsFloatingPaneTouchVisible =>
+        _floatingPaneBorder is { } border && FloatingPane.IsTouchVisible(border);
+
+    public void SetFloatingPaneTouchVisible(bool visible)
+    {
+        if (IsDocked || _floatingPaneBorder is not { } border)
+            return;
+
+        FloatingPane.SetTouchVisible(border, visible);
+    }
+
+    public void ToggleFloatingPaneTouchVisible()
+    {
+        if (IsDocked || _floatingPaneBorder is not { } border)
+            return;
+
+        FloatingPane.SetTouchVisible(border, !FloatingPane.IsTouchVisible(border));
+    }
+
+    public bool IsPointInsideVisibleFloatingPane(Visual relativeTo, Point point)
+    {
+        if (_floatingPaneBorder is not { IsHitTestVisible: true } border)
+            return false;
+
+        if (!IsDocked && !IsLocked && !FloatingPane.IsTouchVisible(border) && border.Opacity <= 0.01)
+            return false;
+
+        return border.TranslatePoint(default, relativeTo) is { } origin
+            && new Rect(origin, border.Bounds.Size).Contains(point);
+    }
+
     private void UpdateFloatingPaneVisibilityState(Border border, bool isDocked)
     {
         if (!isDocked)
         {
             FloatingPane.ClearTemporaryVisible(border);
-            FloatingPane.SetPointerAway(border);
+            FloatingPane.SetTouchVisible(border, false);
             return;
         }
 
         FloatingPane.ResetState(border);
         FloatingPane.ClearTemporaryVisible(border);
+        FloatingPane.SetTouchVisible(border, false);
     }
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e)

@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net11.0-ios</TargetFramework>
-		<SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
 		<Nullable>enable</Nullable>
 		<EnableMcp>false</EnableMcp>
 		<EnableRuntimeAsync>false</EnableRuntimeAsync>
@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
+		<ImageAsset Include="Assets.xcassets\LaunchLogo.imageset\Contents.json" />
 	</ItemGroup>
 
 	<ItemGroup>
