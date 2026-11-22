@@ -23,7 +23,9 @@
             Stretch="UniformToFill" />
 
         <CommandBar
+            x:Name="ItemCommandBar"
             Grid.Column="2"
+            HorizontalAlignment="Right"
             VerticalAlignment="Center"
             DefaultLabelPosition="Right"
             IsDynamicOverflowEnabled="True">
@@ -47,6 +49,10 @@
                     Click="OpenDownloadLocationItem_OnClicked"
                     Icon="{markup:SymbolIcon FolderArrowRight}"
                     Label="{I18N {x:Static local:DownloadItemResources+OpenDownloadLocationItem.Label}}" />
+                <CommandBarButton
+                    Click="CopyImagePathItem_OnClicked"
+                    Icon="{markup:SymbolIcon Copy}"
+                    Label="{I18N {x:Static local:DownloadItemResources+CopyImagePathItem.Label}}" />
                 <CommandBarButton
                     Click="GoToPageItem_OnClicked"
                     Icon="{markup:SymbolIcon Open}"

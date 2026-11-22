@@ -9,6 +9,9 @@
   "CheckErrorMessageInDetailItem": {
     "Label": "查看详细错误信息"
   },
+  "CopyImagePathItem": {
+    "Label": "复制图片路径"
+  },
   "DownloadCancelled": "下载已取消",
   "ActionDownloadCancelled": "取消",
   "DownloadCompleted": "下载完成",

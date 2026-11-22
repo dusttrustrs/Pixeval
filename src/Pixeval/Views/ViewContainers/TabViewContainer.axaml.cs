@@ -85,17 +85,32 @@ public partial class TabViewContainer : ViewContainerBase
         TabsControl.InterTabController = set ? new InterTabController { InterTabClient = new PixevalInterTabClient() } : null;
     }
 
+    private void ApplySafeAreaPadding(Thickness safeArea)
+    {
+        Padding = safeArea;
+    }
+
     /// <inheritdoc />
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        Manager = new WindowNotificationManager(TopLevel.GetTopLevel(this))
+        if (TopLevel.GetTopLevel(this) is { } topLevel)
         {
-            MaxItems = 3,
-            Position = NotificationPosition.BottomRight
-        };
-        FlushPendingNotifications();
-        RegisterContentDialogHost(TopLevel.GetTopLevel(this));
+            if (topLevel.InsetsManager is { } insetsManager)
+            {
+                insetsManager.DisplayEdgeToEdgePreference = true;
+                ApplySafeAreaPadding(insetsManager.SafeAreaPadding);
+                insetsManager.SafeAreaChanged += (_, args) => ApplySafeAreaPadding(args.SafeAreaPadding);
+            }
+
+            Manager = new WindowNotificationManager(topLevel)
+            {
+                MaxItems = 3,
+                Position = NotificationPosition.BottomRight
+            };
+            FlushPendingNotifications();
+            RegisterContentDialogHost(topLevel);
+        }
 
         if (AppInfo.AppVersion.UsesVelopack)
         {

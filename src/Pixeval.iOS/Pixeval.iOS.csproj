@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
+		<ImageAsset Include="Assets.xcassets\LaunchLogo.imageset\Contents.json" />
 	</ItemGroup>
 
 	<ItemGroup>

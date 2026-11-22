@@ -52,10 +52,9 @@
             <Setter Property="Transitions">
                 <Transitions>
                     <DoubleTransition
-                        Delay="0:0:0.1"
                         Easing="CubicEaseOut"
                         Property="DockProgress"
-                        Duration="0:0:0.3" />
+                        Duration="0:0:0.18" />
                 </Transitions>
             </Setter>
 
@@ -112,25 +111,37 @@
             </Style>
         </Style>
 
-        <Style Selector="Border#FloatingToolbarPane">
+        <Style Selector="StackPanel#BottomOverlayPane">
             <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+                    <DoubleTransition
+                        Easing="CubicEaseOut"
+                        Property="Opacity"
+                        Duration="0:0:0.16" />
                 </Transitions>
             </Setter>
         </Style>
 
-        <Style Selector="Border#FloatingToolbarPane.proximity">
-            <Setter Property="Opacity" Value="0.5" />
+        <Style Selector="StackPanel#BottomOverlayPane.proximity">
+            <Setter Property="Opacity" Value="0.6" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
 
-        <Style Selector="Border#FloatingToolbarPane.close-proximity">
+        <Style Selector="StackPanel#BottomOverlayPane.close-proximity">
             <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
 
-        <Style Selector="Border#FloatingToolbarPane.temporary-visible">
+        <Style Selector="StackPanel#BottomOverlayPane.temporary-visible">
             <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
+
+        <Style Selector="StackPanel#BottomOverlayPane.touch-visible">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
     </ContentPage.Styles>
 
@@ -146,20 +157,18 @@
                     <Border.Transitions>
                         <Transitions>
                             <CornerRadiusTransition
-                                Delay="0:0:0.1"
                                 Easing="CubicEaseOut"
                                 Property="CornerRadius"
-                                Duration="0:0:0.3" />
+                                Duration="0:0:0.18" />
                             <BrushTransition
-                                Delay="0:0:0.1"
                                 Property="Background"
-                                Duration="0:0:0.3" />
+                                Duration="0:0:0.18" />
                         </Transitions>
                     </Border.Transitions>
                     <local:IllustrationViewerInfoPane IsDocked="{Binding #EntryViewerFloatingPaneView.IsDocked, Mode=TwoWay}" IsLocked="{Binding #EntryViewerFloatingPaneView.IsLocked, Mode=TwoWay}" />
                 </Border>
             </controls:FloatingPaneView.Pane>
-            <Panel>
+            <Panel x:Name="ViewerGesturePanel">
                 <Panel Background="Transparent">
                     <!--  图片查看器  -->
 
@@ -168,54 +177,69 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         CurrentWorkIndex="{Binding #Root.((viewers:IllustrationViewerPageViewModel)DataContext)?.CurrentWorkIndex}"
-                        DataContext="{Binding CurrentImage}" />
+                        DataContext="{Binding CurrentImage}">
+                        <local:ImageViewerWrapper.RenderTransform>
+                            <TranslateTransform x:Name="ViewerSwipeTransform" />
+                        </local:ImageViewerWrapper.RenderTransform>
+                    </local:ImageViewerWrapper>
 
                     <controls:ViewerStateOverlay ErrorMessage="{Binding LoadErrorMessage}" IsLoading="{Binding IsLoading}" />
 
-                    <!--  左翻页按钮  -->
-                    <controls:PageButton
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Stretch"
-                        Command="{Binding PrevCommand}"
-                        ContextRequested="PrevButton_OnRightClick"
-                        Symbol="ChevronLeft"
-                        ToolTipText="{Binding PrevButtonText}">
-                        <controls:PageButton.IsVisible>
-                            <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                <Binding Converter="{x:Static StringConverters.IsNotNullOrEmpty}" Path="PrevButtonText" />
-                                <Binding Path="#I.IsSwipeMode" />
-                            </MultiBinding>
-                        </controls:PageButton.IsVisible>
-                    </controls:PageButton>
-
-                    <!--  右翻页按钮  -->
-                    <controls:PageButton
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Command="{Binding NextCommand}"
-                        ContextRequested="NextButton_OnRightClick"
-                        Symbol="ChevronRight"
-                        ToolTipText="{Binding NextButtonText}">
-                        <controls:PageButton.IsVisible>
-                            <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                <Binding Converter="{x:Static StringConverters.IsNotNullOrEmpty}" Path="NextButtonText" />
-                                <Binding Path="#I.IsSwipeMode" />
-                            </MultiBinding>
-                        </controls:PageButton.IsVisible>
-                    </controls:PageButton>
-
-                    <Border
-                        x:Name="FloatingToolbarPane"
-                        Margin="32"
-                        Padding="10"
+                    <StackPanel
+                        x:Name="BottomOverlayPane"
+                        Margin="12,16"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Bottom"
+                        controls:FloatingPane.CloseProximityRange="0,12,0,0"
                         controls:FloatingPane.IsEnabled="True"
-                        Background="{DynamicResource SystemAltMediumHighColor}"
+                        controls:FloatingPane.ProximityRange="0,24,0,0"
                         ClipToBounds="False"
-                        CornerRadius="20"
-                        IsVisible="{Binding CurrentImage, Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <StackPanel Spacing="8">
+                        IsVisible="{Binding CurrentImage, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Spacing="10">
+                        <!--  上一张 / 下一张按钮置于底部控制栏上方  -->
+                        <StackPanel
+                            HorizontalAlignment="Center"
+                            IsVisible="{Binding #I.IsSwipeMode}"
+                            Orientation="Horizontal"
+                            Spacing="12">
+                            <Button
+                                Padding="14,8"
+                                Background="{DynamicResource SystemAltMediumHighColor}"
+                                Command="{Binding PrevCommand}"
+                                ContextRequested="PrevButton_OnRightClick"
+                                CornerRadius="18"
+                                IsEnabled="{Binding PrevButtonText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <ContentControl Content="{markup:SymbolIcon ChevronLeft}" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Text="{Binding PrevButtonText}" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Padding="14,8"
+                                Background="{DynamicResource SystemAltMediumHighColor}"
+                                Command="{Binding NextCommand}"
+                                ContextRequested="NextButton_OnRightClick"
+                                CornerRadius="18"
+                                IsEnabled="{Binding NextButtonText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Text="{Binding NextButtonText}" />
+                                    <ContentControl Content="{markup:SymbolIcon ChevronRight}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Border
+                            x:Name="FloatingToolbarPane"
+                            Padding="10"
+                            HorizontalAlignment="Center"
+                            Background="{DynamicResource SystemAltMediumHighColor}"
+                            ClipToBounds="False"
+                            CornerRadius="20">
+                            <StackPanel Spacing="8">
                             <controls:PagePreviewSlider
                                 Padding="5"
                                 HorizontalAlignment="Stretch"
@@ -421,7 +445,8 @@
                                 </CommandBar.PrimaryCommands>
                             </CommandBar>
                         </StackPanel>
-                    </Border>
+                        </Border>
+                    </StackPanel>
                 </Panel>
                 <ProgressBar
                     VerticalAlignment="Top"

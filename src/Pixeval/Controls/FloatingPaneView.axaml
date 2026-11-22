@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Pixeval.Controls">
@@ -56,35 +56,46 @@
             <Setter Property="Transitions">
                 <Transitions>
                     <DoubleTransition
-                        Easing="0.1,0.9,0.2,1.0"
+                        Easing="CubicEaseOut"
                         Property="Opacity"
-                        Duration="0:0:2" />
+                        Duration="0:0:0.18" />
                 </Transitions>
             </Setter>
         </Style>
 
         <Style Selector="^ /template/ Border#PART_FloatingPaneBorder.not-proximity">
             <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
         </Style>
 
         <Style Selector="^ /template/ Border#PART_FloatingPaneBorder.proximity">
             <Setter Property="Opacity" Value="0.5" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
 
         <Style Selector="^:locked /template/ Border#PART_FloatingPaneBorder">
             <Setter Property="Opacity" Value="0.9" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
 
         <Style Selector="^ /template/ Border#PART_FloatingPaneBorder.close-proximity">
             <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
 
         <Style Selector="^ /template/ Border#PART_FloatingPaneBorder.temporary-visible">
             <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
+
+        <Style Selector="^ /template/ Border#PART_FloatingPaneBorder.touch-visible">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
         </Style>
 
         <Style Selector="^:docked /template/ Border#PART_FloatingPaneBorder">
             <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
             <Setter Property="controls:FloatingPane.IsEnabled" Value="False" />
         </Style>
 
